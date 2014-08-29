@@ -353,6 +353,10 @@ function getTables($injectionPoint, $numberColumns, $reflectedColumns)
         $i = 2;
         $tableName = array(reset($tables));
         while (!empty($tableName) && $i < 100) {
+            if (!isset($dbName) || !isset($website)) {
+                continue;
+            }
+            
             $qualifier = ' FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 0x'.strToHex($dbName)
                         .' AND table_name NOT IN ('.implode($website->tablesList).') LIMIT '.$i.', 1';
 
