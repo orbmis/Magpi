@@ -41,7 +41,7 @@ class scanner
 
         fclose($handle);
 
-        print($this->getBanner());
+        //print($this->getBanner());
 
         $lastScanned = reset(file('current.txt'));
 
@@ -60,6 +60,8 @@ class scanner
 
         $i = 0;
 
+        $listCount = count($potentialList);
+
         // iterate through potential targets...
         foreach ($potentialList as $url) {
             if (!$lastScanned || $url == $lastScanned) {
@@ -68,7 +70,7 @@ class scanner
             } elseif ($ignoreFlag) {
                 //continue;
             }
-            $this->scanUrl($url, $logFile, $swapFile, $lastScanned);
+            scanUrl($url, $logFile, $swapFile, $lastScanned, $i, $listCount);
             $i++;
         }
 
