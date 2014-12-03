@@ -12,7 +12,7 @@ class navigation
     {
     	$banner = self::getBanner();
 
-        $options = array('SQL Injection (error-based)');
+        $options = array('SQL Injection (error-based)', 'Heartbleed', 'Shellshock', 'LFI / RFI', 'CLRF / Response Splitting', 'XSS (Reflective / DOM based)');
 
 		$menu = "\n\nPlease Select an Attack vector:\n";
 
@@ -35,7 +35,7 @@ class navigation
      */
     public static function processMenuSelection($selectionId)
     {
-        $modules = array('sqliscan');
+        $modules = array('sqliscan', 'heartbleed', 'shellshock', 'lfi', 'clrf', 'xss');
 
         return $modules[$selectionId - 1];
     }
