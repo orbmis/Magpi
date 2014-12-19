@@ -143,7 +143,7 @@ function startScan($inputFile, $potentialList, $logFile)
  * @param Integer The length of the list of URLs
  * @return void
  */
-function scanUrl($candidate, $logFile, $swapFile, $siteNumber, $listCount)
+function scanUrl($candidate, $logFile, $swapFile, $lastScanned, $siteNumber, $listCount)
 {
     $website = new stdClass;
 
@@ -505,10 +505,10 @@ function getDumpTabulated($injectionPoint, $dbName, $numberColumns, $reflectedCo
 
             $data = array_unique($info);
 
-            // for testing
-            //$rowCount = 10;
-
             echo "\n\nRow Count: ".count($data)." - ".$rowCount."\n\n";
+
+            // the creams at the top...
+            $rowCount = ($rowCount <= 10) ? $rowCount : 10;
 
             if (count($data) < $rowCount) {
                 $buffer = array();
