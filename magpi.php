@@ -51,7 +51,7 @@
 #########################################################################################
 
 if (PHP_SAPI === 'cli' && !isset($argv[1]) && !isset($argv[2])) {
-    //die("\nUsage: php magpi.php listFile logFile\n");
+    die("\nUsage: php magpi.php listFile logFile\n");
 }
 
 require_once('navigation.php');
